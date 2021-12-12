@@ -56,7 +56,18 @@ impl Deribit {
 
     #[throws(Error)]
     pub async fn connect(self) -> (DeribitAPIClient, DeribitSubscriptionClient) {
-        let ws_url = if self.testnet { WS_URL_TESTNET } else { WS_URL };
+        let base_url = var("DERIBIT_URL").unwrap();
+        let ws_url = if self.testnet {
+            WS_URL_TESTNET
+        }
+        else {
+            if !base_url.is_empty() {
+                &*base_url
+            }
+            else{
+                WS_URL
+            }
+        };
         info!("Connecting");
         let (ws, _) = connect_async(Url::parse(ws_url)?).await?;
 
